@@ -23,6 +23,6 @@ Because the password hash is _password equivalent_, it cannot be transferred in 
 once more using a SHA-512 HMAC with a one time salt produced by the server when presenting the login page.  The servlet
 also does this computation on the stored password to compare the results.
 
-To see a live demonstation go to http://password-hashing.appspot.com/
+To see a live demonstration go "here":http://password-hashing.appspot.com/
 
 -- Asgeir Storesund Nilsen
