@@ -27,7 +27,7 @@ To see a live demonstration go "here.":http://password-hashing.appspot.com/
 
 Links to the two main interesting files:
 
-* "Client":war/index.html
-* "Servlet":src/no/twingine/passwords/PasswordsServlet.java
+* "Client":./blob/master/war/index.html
+* "Servlet":./blob/master/src/no/twingine/passwords/PasswordsServlet.java
 
 -- Asgeir Storesund Nilsen
