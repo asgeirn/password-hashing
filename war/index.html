@@ -1,0 +1,128 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<!-- The HTML 4.01 Transitional DOCTYPE declaration-->
+<!-- above set at the top of the file will set     -->
+<!-- the browser's rendering engine into           -->
+<!-- "Quirks Mode". Replacing this declaration     -->
+<!-- with a "Standards Mode" doctype is supported, -->
+<!-- but may lead to some differences in layout.   -->
+
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+    <title>Secure passwords using JavaScript</title>
+    <script type="text/javascript" src="BigInt.js"></script> 
+    <script type="text/javascript" src="Barrett.js"></script> 
+    <script type="text/javascript" src="RSA.js"></script> 
+    <script type="text/javascript" src="sha512.js"></script>
+    <script type="text/javascript" src="key.js"></script>
+    <script type="text/javascript">
+function verifyPassword() {
+    if (uf.password.value == "")
+        return false;
+    if (uf.password.value != uf.confirm.value)
+        return false;
+    return true;
+}
+function encryptPassword() {
+    uf.button.value = "Please wait...";
+    uf.button.disabled = true;
+    uf.password.value = encryptedString(key, "OK:" + b64_hmac_sha512(uf.user.value, uf.confirm.value));
+    uf.confirm.value = "RSA";
+    return true;
+}
+function onBodyLoad() {
+	if (sha512_vm_test()) {
+		lf.password.disabled = false;
+	}
+	if (encryptedString(key, "test") == "acd71c990c953f4c56ebf3f2935930631ee2717bb40bbcd360435c1a66ee07843657d90645ca578ce04d0123da76d9ea7d5d3f0c218b3460660b8e5c2db7e4aedf1832e460b0c5e39bff4d4cc2b0fe009e9e317833737f9909b6a6f436eefd033b2a76f494bc79b87d25023867067bf8fed4059ad85b4e2a50331772e12c96d1") {
+		uf.password.disabled = false;
+	}
+}
+    </script>
+    <script type="text/javascript" src="passwords?action=salt"></script>
+    <style>
+BODY {
+      font-family: Segoe UI, Verdana, sans-serif;
+}
+A {
+      text-decoration:none;
+}
+INPUT[type=text], INPUT[type=checkbox], INPUT[type=password] {
+      position: absolute;
+      left: 20ex;
+}
+.box {
+      border: thin solid black;
+      padding: 0px 0.5cm;
+      margin: 0.5cm;
+      background-color: #eee;
+}
+    </style>
+  </head>
+
+  <body onload="onBodyLoad()">
+    <h1>Secure authentication using JavaScript</h1>
+
+    <div class="box">
+    <form action="passwords" method="post" id="uf" onsubmit="return encryptPassword();">
+      <h2>Register new user</h2>
+      <p>User registration sends the user's password hash (a SHA-512 HMAC of the user id and password) encrypted with a
+      1024-bit RSA key. The servlet decrypts the password hash before storing it.</p>
+	  <input type="hidden" name="action" value="register"/>
+      <p>Userid: <input type="text" name="user"/></p>
+      <p>Password: <input type="password" name="password" disabled="disabled"/></p>
+      <p>Confirm: <input type="password" name="confirm"/></p>
+      <p><input type="submit" name="button" value="Register" onclick="return verifyPassword();"/></p>
+    </form>
+    </div>
+    
+    <div class="box">
+    <form action="passwords" method="post" id="lf" onsubmit="button.disabled = true; button.value = 'Logging in...'; password.value = hex_hmac_sha512(salt, b64_hmac_sha512(user.value, password.value)); return true;">
+      <h2>Login</h2>
+      <p>User authentication transmits a doubly hashed password value.  First the user id and password are SHA-512 HMAC 
+      hashed to produce the password hash as stored on the server.  </p>
+      
+      <p>Since this data is password equivalent it cannot be transferred unprotected.  Therefore the servlet has 
+      provided a salt that can be used to SHA-512 HMAC this password hash once more.</p>
+      
+      <p>The servlet then reproduces this salted hash to compare the submitted password hash with the stored entry.</p>
+      <input type="hidden" name="action" value="login"/>
+      <p>Userid: <input type="text" name="user"/></p>
+      <p>Password: <input type="password" name="password" disabled="disabled"/></p>
+      <p><input type="submit" name="button" value="Log in"/></p>
+    </form>
+    </div>
+    
+    <div class="box">
+    <form action="passwords" method="post" id="vf">
+      <h2>Validate session</h2>
+      <p>This button displays the stored login information.</p>
+      <input type="hidden" name="action" value="validate"/>
+      <p><input type="submit" name="button" value="Validate login"/></p>
+    </form>
+    </div>
+    
+    <div class="box">
+    <h2>To Do:</h2>
+    
+    <ol>
+      <li>Find a better HMAC key than the user name.  The recommendation is for the key to be of equal length as the 
+      hash, and to be protected. This is tricky since the key must be available on the client.</li>
+      
+      <li>Find a better HMAC key to use as the one-time salt when submitting the password.  Ideally this should be a 
+      one-time key, but it needs to be shared with only one user.  The browser's session object might be suitable.</li>
+      
+      <li>More validation on the client side:
+      
+      <ul>
+        <li>Verify that JavaScript is enabled and working before accepting passwords.  Provide feedback in form of
+        icons etc.</li>
+        <li>Provide some feedback since RSA takes some time.  Spinner or similar.</li>
+      </ul>
+      
+      </li>
+      
+    </ol>
+    </div>
+  </body>
+</html>
