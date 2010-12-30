@@ -1,0 +1,28 @@
+h1. Secure passwords using JavaScript password hashing
+
+This is a tiny web application demonstrating the use of JavaScript crypto functions to secure passwords
+_in the browser_ before submitting to a web servlet.
+
+Because the data is secured before leaving the browser, the risk that the unprotected password goes astray are 
+significantly reduced.
+
+The server never sees the actual password.  Instead it receives a SHA-512 HMAC of the password, keyed with the user 
+name.  This has many benefits:
+
+* Plain text version not available.
+* Actual length of password is unknown, since the hash always produces the same length data
+* Small variations in the password produce large variations in the hash.
+* Protection against precomputed dictionary attacks.  Since the hash is keyed with the user name the same password
+  produces different hash values for different user names.
+* SHA-512 makes large scale brute force attacks less feasible because of the computation involved.
+
+User registration encrypts this password hash using a 1024-bit RSA key.  The public key is known to the browser, but
+the private key never needs to leave the registration servlet.
+
+Because the password hash is _password equivalent_, it cannot be transferred in the clear.  Therefore it is hashed
+once more using a SHA-512 HMAC with a one time salt produced by the server when presenting the login page.  The servlet
+also does this computation on the stored password to compare the results.
+
+To see a live demonstation go to http://password-hashing.appspot.com/
+
+-- Asgeir Storesund Nilsen
